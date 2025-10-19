@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import boletamaster.usuarios.Organizador;
+import boletamaster.tiquetes.Ticket;
 
 public class Evento {
     private final String id;
@@ -12,6 +13,7 @@ public class Evento {
     private final Venue venue;
     private final Organizador organizador;
     private final List<Localidad> localidades;
+    private final List<Ticket> tickets; // tickets asociados a este evento
     private boolean cancelado;
 
     public Evento(String id, String nombre, LocalDateTime fechaHora, Venue venue, Organizador organizador) {
@@ -21,10 +23,10 @@ public class Evento {
         this.venue = venue;
         this.organizador = organizador;
         this.localidades = new ArrayList<>();
+        this.tickets = new ArrayList<>();
         this.cancelado = false;
     }
 
-    //metodos
     public String getId() { return id; }
     public String getNombre() { return nombre; }
     public LocalDateTime getFechaHora() { return fechaHora; }
@@ -36,9 +38,25 @@ public class Evento {
 
     public void addLocalidad(Localidad loc) { this.localidades.add(loc); }
 
+    /** tickets asociados **/
+    public void addTicket(Ticket t) {
+        if (t == null) throw new IllegalArgumentException("Ticket nulo");
+        tickets.add(t);
+        t.setEvento(this);
+    }
+    public List<Ticket> getTickets() { return tickets; }
+
+    /**
+     * Devuelve la capacidad total del evento
+     */
+    public int limiteTickets() {
+        int total = 0;
+        for (Localidad l : localidades) total += l.getCapacidad();
+        return total;
+    }
+
     @Override
     public String toString() {
         return "Evento{" + nombre + " en " + venue.getNombre() + " el " + fechaHora + ", organizador=" + organizador.getNombre() + "}";
     }
 }
-

@@ -21,7 +21,7 @@ public class TicketMultiple extends Ticket {
 
     @Override
     public boolean esTransferible() {
-        // transferible solo si ninguno de sus elementos ha sido transferido y todos sin usar
+        // transferible si solo si ninguno de sus elementos ha sido transferido y todos sin usar
         if (paqueteTransferido) return false;
         for (Ticket t : elementos) {
             if (t.getEstado() != TicketEstado.VENDIDO && t.getEstado() != TicketEstado.DISPONIBLE) return false;

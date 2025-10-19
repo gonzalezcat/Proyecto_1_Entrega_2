@@ -20,6 +20,8 @@ public class Localidad {
         this.asientosNumerados = numerada ? new ArrayList<>() : null;
     }
 
+    //metodos
+    
     public String getId() { return id; }
     public String getNombre() { return nombre; }
     public double getPrecioBase() { return precioBase; }

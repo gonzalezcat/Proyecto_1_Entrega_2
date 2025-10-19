@@ -15,6 +15,7 @@ public class Venue {
         this.aprobado = aprobado;
     }
 
+    //metodos
     public String getId() { return id; }
     public String getNombre() { return nombre; }
     public String getUbicacion() { return ubicacion; }

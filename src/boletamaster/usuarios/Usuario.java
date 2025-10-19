@@ -16,6 +16,8 @@ public abstract class Usuario {
         this.nombre = nombre;
         this.saldo = 0.0;
     }
+    
+    //metodos
 
     public String getId() { return id; }
     public String getLogin() { return login; }

@@ -24,6 +24,7 @@ public class Evento {
         this.cancelado = false;
     }
 
+    //metodos
     public String getId() { return id; }
     public String getNombre() { return nombre; }
     public LocalDateTime getFechaHora() { return fechaHora; }

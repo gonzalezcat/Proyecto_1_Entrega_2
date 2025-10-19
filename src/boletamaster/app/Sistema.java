@@ -89,29 +89,37 @@ public class Sistema {
     }
 
     // cancelar evento y reembolsos
-    public List<Reembolso> cancelarEventoYReembolsar(Evento e, Administrador admin) {
-        if (!admin.getLogin().equals(admin.getLogin())) {
-            
+    public List<Reembolso> cancelarEventoYReembolsar(Evento evento, Administrador admin) {
+        if (admin == null) {
+            throw new IllegalArgumentException("Solo el administrador puede cancelar eventos");
         }
-        e.cancelar();
+
+        // marcar el evento como cancelado
+        evento.cancelar();
+
         List<Reembolso> reembolsos = new ArrayList<>();
-        // buscar tickets 
+
         for (Object obj : repo.getTickets()) {
             if (!(obj instanceof Ticket)) continue;
+
             Ticket t = (Ticket) obj;
-            if (t.getPropietario() != null) {
-                Usuario u = t.getPropietario();
-                double montoRembolso = t.getPrecioBase(); 
-                
-                montoRembolso = t.getPrecioBase() + t.getPrecioBase()*t.getPorcentajeServicio();
-                montoRembolso = montoRembolso; 
-                u.depositarSaldo(montoRembolso);
-                Reembolso r = new Reembolso(u, montoRembolso);
-                repo.addTransaccion(r);
-                reembolsos.add(r);
-                t.estado = TicketEstado.CANCELADO;
+
+            if (t.getEstado() == TicketEstado.VENDIDO || t.getEstado() == TicketEstado.TRANSFERIDO) {
+                Usuario propietario = t.getPropietario();
+                if (propietario != null) {
+                    double montoReembolso = t.getPrecioBase() + (t.getPrecioBase() * t.getPorcentajeServicio());
+                    
+                    propietario.depositarSaldo(montoReembolso);
+
+                    Reembolso r = new Reembolso(propietario, montoReembolso);
+                    repo.addTransaccion(r);
+                    reembolsos.add(r);
+
+                    t.setEstado(TicketEstado.CANCELADO);
+                }
             }
         }
+
         return reembolsos;
     }
 

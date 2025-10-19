@@ -8,7 +8,7 @@ public abstract class Ticket {
     protected final double precioBase;
     protected final double porcentajeServicio;
     protected final double cuotaFija;
-    protected TicketEstado estado;
+    public TicketEstado estado;
     protected Usuario propietario; // null si no vendido
 
     public Ticket(double precioBase, double porcentajeServicio, double cuotaFija) {
@@ -19,12 +19,18 @@ public abstract class Ticket {
         this.estado = TicketEstado.DISPONIBLE;
     }
 
+    //metodos
+    
     public String getId() { return id; }
     public double getPrecioBase() { return precioBase; }
     public double getPorcentajeServicio() { return porcentajeServicio; }
     public double getCuotaFija() { return cuotaFija; }
     public TicketEstado getEstado() { return estado; }
     public Usuario getPropietario() { return propietario; }
+    
+    public void setEstado(TicketEstado nuevoEstado) {
+        this.estado = nuevoEstado;
+    }
 
     public double precioFinal() {
         return precioBase + precioBase * porcentajeServicio + cuotaFija;

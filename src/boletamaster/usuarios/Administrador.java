@@ -1,7 +1,7 @@
 package boletamaster.usuarios;
 
 public class Administrador extends Usuario {
-    //cant comprar
+    //cannot comprar
     public Administrador(String login, String password, String nombre) {
         super(login, password, nombre);
     }

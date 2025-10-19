@@ -1,5 +1,6 @@
 package boletamaster.tiquetes;
-
+import boletamaster.eventos.Evento;
+import boletamaster.eventos.Localidad;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,11 +8,13 @@ public class TicketMultiple extends Ticket {
     private final List<Ticket> elementos; // tickets que componen el paquete
     private boolean paqueteTransferido; // si se ha transferido el paquete
 
-    public TicketMultiple(double precioBase, double porcentajeServicio, double cuotaFija) {
-        super(precioBase, porcentajeServicio, cuotaFija);
+    public TicketMultiple(Evento evento, Localidad localidad, double precioBase, 
+            double porcentajeServicio, double cuotaFija) {
+    	super(evento, localidad, precioBase, porcentajeServicio, cuotaFija);
         this.elementos = new ArrayList<>();
         this.paqueteTransferido = false;
     }
+    //agregar un tiquete al paquete
 
     public void addElemento(Ticket t) {
         elementos.add(t);

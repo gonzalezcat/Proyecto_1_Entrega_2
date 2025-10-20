@@ -12,4 +12,3 @@ public class Reembolso extends Transaccion {
         return "Reembolso{" + getId() + ", usuario=" + usuario.getLogin() + ", monto=" + montoTotal + "}";
     }
 }
-

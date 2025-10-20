@@ -27,4 +27,3 @@ public abstract class Transaccion {
         return "Transaccion{" + id + ", fecha=" + fecha + ", usuario=" + usuario.getLogin() + ", monto=" + montoTotal + "}";
     }
 }
-

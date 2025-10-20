@@ -42,7 +42,7 @@ public class Evento {
     public void addTicket(Ticket t) {
         if (t == null) throw new IllegalArgumentException("Ticket nulo");
         tickets.add(t);
-        t.setEvento(this);
+        
     }
     public List<Ticket> getTickets() { return tickets; }
 

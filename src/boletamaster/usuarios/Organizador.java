@@ -1,17 +1,17 @@
 package boletamaster.usuarios;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
-import boletamaster.app.Sistema;
+
 import boletamaster.eventos.Evento;
 import boletamaster.eventos.Venue;
 import boletamaster.tiquetes.Ticket;
 import boletamaster.tiquetes.TicketMultiple;
-import boletamaster.transacciones.Reembolso;
+
 import boletamaster.tiquetes.TicketEstado;
-import boletamaster.transacciones.Compra;
+
 
 public class Organizador extends Usuario {
     public Organizador(String login, String password, String nombre) {
@@ -21,18 +21,7 @@ public class Organizador extends Usuario {
     /**
      * Devuelve los eventos que pertenecen a este organizador
      */
-    public List<Evento> eventosActivos(Sistema sistema) {
-        if (sistema == null) throw new IllegalArgumentException("Sistema nulo");
-        List<Evento> res = new ArrayList<>();
-        for (Object o : sistema.getRepo().getEventos()) {
-            if (!(o instanceof Evento)) continue;
-            Evento e = (Evento) o;
-            if (e.getOrganizador().getLogin().equals(this.getLogin()) && !e.isCancelado() && e.getFechaHora().isAfter(java.time.LocalDateTime.now())) {
-                res.add(e);
-            }
-        }
-        return res;
-    }
+   
 
     /**
      * Devuelve el Venue del evento si este organizador es su creador

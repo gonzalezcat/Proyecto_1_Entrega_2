@@ -8,7 +8,7 @@ import boletamaster.eventos.*;
 public class BoletamasterSystem {
     private static BoletamasterSystem instance;
     
-    // Gestores específicos
+    
     private GestorUsuarios gestorUsuarios;
     private GestorEventos gestorEventos;
     private GestorOfertas gestorOfertas;
@@ -18,7 +18,7 @@ public class BoletamasterSystem {
     private GestorReembolsos gestorReembolsos;
     private Reporteador reporteador;
     
-    // ✅ NUEVOS GESTORES
+    
     private GestorPersistencia gestorPersistencia;
     private ConfiguracionSistema configuracion;
     
@@ -27,12 +27,12 @@ public class BoletamasterSystem {
     private List<Venue> venues;
     
     private BoletamasterSystem() {
-        // ✅ INICIALIZAR NUEVOS GESTORES PRIMERO
+      
         this.gestorPersistencia = new GestorPersistencia();
         this.configuracion = new ConfiguracionSistema();
         this.gestorFinanzas = new GestorFinanzas();
         
-        // ✅ INYECTAR DEPENDENCIAS CORRECTAMENTE
+       
         this.gestorVentas = new GestorVentas(gestorFinanzas,gestorOfertas);
         this.gestorEventos = new GestorEventos();
         this.gestorUsuarios = new GestorUsuarios();
@@ -43,7 +43,7 @@ public class BoletamasterSystem {
         this.eventos = new ArrayList<>();
         this.venues = new ArrayList<>();
         
-        // ✅ CARGAR DATOS PERSISTENTES
+        
         cargarDatosPersistentes();
     }
     
@@ -54,20 +54,19 @@ public class BoletamasterSystem {
         return instance;
     }
     
-    // ✅ NUEVO MÉTODO: Cargar datos al iniciar
+    
     private void cargarDatosPersistentes() {
         System.out.println("Cargando datos persistentes...");
-        // Aquí cargarías usuarios, eventos, etc. desde archivos
-        // Por ahora es un placeholder para la siguiente fase
+        // cargar usuarios, eventos, etc. 
+        
     }
     
-    // ✅ NUEVO MÉTODO: Guardar datos al cerrar
     public void guardarDatos() {
         System.out.println("Guardando datos...");
         gestorPersistencia.guardarUsuarios(gestorUsuarios.getUsuarios());
         gestorPersistencia.guardarEventos(eventos);
         gestorPersistencia.guardarVenues(venues);
-        // Nota: Necesitas agregar getTransacciones() a GestorFinanzas
+        
     }
     
     // Métodos de acceso a los gestores
@@ -79,7 +78,6 @@ public class BoletamasterSystem {
     public GestorReembolsos getGestorReembolsos() { return gestorReembolsos; }
     public Reporteador getReporteador() { return reporteador; }
     public GestorOfertas getGestorOfertas() { return gestorOfertas; }
-    // ✅ NUEVOS GETTERS
     public GestorPersistencia getGestorPersistencia() { return gestorPersistencia; }
     public ConfiguracionSistema getConfiguracion() { return configuracion; }
     

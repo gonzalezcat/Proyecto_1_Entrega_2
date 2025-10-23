@@ -7,8 +7,7 @@ public abstract class Usuario {
     protected final String login;
     protected String password;
     protected String nombre;
-    protected double saldo; // reembolsos
-
+    protected double saldo; 
     public Usuario(String login, String password, String nombre) {
         this.id = UUID.randomUUID().toString();
         this.login = login;

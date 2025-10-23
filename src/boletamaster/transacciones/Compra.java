@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Compra extends Transaccion {
-    private final List<Ticket> tickets;  // ✅ NUEVO: Asociación con tickets comprados
+    private final List<Ticket> tickets;  
 
     public Compra(Usuario usuario, double montoTotal, List<Ticket> tickets) {
         super(usuario, montoTotal);

@@ -19,7 +19,7 @@ public class GestorFinanzas {
     // Para administrador: configurar tarifas
     public void configurarTarifas(double cuotaFija, double porcentajeBase) {
         this.cuotaFijaGlobal = cuotaFija;
-        // Aquí podrías guardar porcentajes por tipo de evento
+        
     }
     
     // Calcular ganancias para organizador
@@ -50,7 +50,7 @@ public class GestorFinanzas {
     private double calcularComisionTransaccion(Transaccion transaccion) {
         if (transaccion instanceof Compra) {
             // La plataforma se queda con los cargos de servicio
-            // Esto es una simplificación - en realidad necesitarías acceso a los tickets
+            // Esto es una simplificación 
             return transaccion.getMontoTotal() * 0.15; // 15% de comisión ejemplo
         }
         return 0;

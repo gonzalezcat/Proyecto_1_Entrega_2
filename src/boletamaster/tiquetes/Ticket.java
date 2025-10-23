@@ -8,8 +8,10 @@ import boletamaster.eventos.Oferta;
 
 public abstract class Ticket {
     protected final String id;
-    protected final Evento evento;
-    protected final Localidad localidad;
+    protected Evento evento;
+    
+
+	protected final Localidad localidad;
     protected final double precioBase;
     protected final double porcentajeServicio;
     protected final double cuotaFija;
@@ -27,7 +29,10 @@ public abstract class Ticket {
         this.estado = TicketEstado.DISPONIBLE;
     }
 
-    public String getId() { return id; }
+    
+	
+
+	public String getId() { return id; }
     public Evento getEvento() { return evento; }
     public Localidad getLocalidad() { return localidad; }
     public double getPrecioBase() { return precioBase; }
@@ -35,6 +40,10 @@ public abstract class Ticket {
     public double getCuotaFija() { return cuotaFija; }
     public TicketEstado getEstado() { return estado; }
     public Usuario getPropietario() { return propietario; }
+    
+    public void setEvento(Evento evento) {
+		this.evento = evento;
+	}
 
 
     public void setEstado(TicketEstado nuevoEstado) {

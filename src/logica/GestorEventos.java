@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GestorEventos {
-    private List<Evento> eventos;  // ✅ NUEVO: Lista para validaciones
+    private List<Evento> eventos;  // 
     
     public GestorEventos() {
-        this.eventos = new ArrayList<>();  // ✅ INICIALIZAR la lista
+        this.eventos = new ArrayList<>();  
     }
     
     public Evento crearEvento(Organizador organizador, String nombre, 
@@ -39,7 +39,7 @@ public class GestorEventos {
         return nuevoEvento;
     }
     
-    // ✅ MÉTODO NUEVO: Validar disponibilidad de venue
+    //  Validar disponibilidad de venue
     private boolean existeEventoEnVenueYFecha(Venue venue, LocalDateTime fecha) {
         for (Evento eventoExistente : eventos) {
             boolean mismoVenue = eventoExistente.getVenue().equals(venue);
@@ -52,7 +52,7 @@ public class GestorEventos {
         return false;
     }
     
-    // ✅ MÉTODO NUEVO: Obtener eventos de un organizador
+    // Obtener eventos de un organizador
     public List<Evento> getEventosPorOrganizador(Organizador organizador) {
         List<Evento> eventosOrganizador = new ArrayList<>();
         for (Evento evento : eventos) {
@@ -64,7 +64,7 @@ public class GestorEventos {
     }
     
     public boolean aprobarEvento(Administrador admin, Evento evento) {
-        // Lógica de aprobación - por ahora simple
+        // Lógica de aprobación 
         System.out.println("Evento '" + evento.getNombre() + "' aprobado por " + admin.getNombre());
         return true;
     }

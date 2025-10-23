@@ -5,7 +5,7 @@ import boletamaster.eventos.Localidad;
 public class TicketNumerado extends Ticket {
     private final String asiento;
     
-    // ✅ CONSTRUCTOR ACTUALIZADO
+   
     public TicketNumerado(Evento evento, Localidad localidad, double precioBase, 
                          double porcentajeServicio, double cuotaFija, String asiento) {
         super(evento, localidad, precioBase, porcentajeServicio, cuotaFija);

@@ -1,8 +1,7 @@
 package logica;
 
-import boletamaster.app.Sistema;
-import boletamaster.marketplace.*;
 import boletamaster.persistence.SimpleRepository;
+import boletamaster.marketplace.Marketplace;
 import boletamaster.tiquetes.*;
 import boletamaster.transacciones.*;
 import boletamaster.usuarios.*;
@@ -11,17 +10,13 @@ import boletamaster.eventos.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class BoletamasterSystem {
 
     private static BoletamasterSystem instance;
 
     private final SimpleRepository repo;
-
     private final Marketplace marketplace;
     private final GestorFinanzas gestorFinanzas;
-    private final GestorOfertasImpl gestorOfertas;
     private final GestorVentas gestorVentas;
     private final GestorTiquetes gestorTiquetes;
     private final Reporteador reporteador;
@@ -35,12 +30,13 @@ public class BoletamasterSystem {
     private BoletamasterSystem() {
         this.repo = new SimpleRepository();
 
-        this.marketplace = new Marketplace(new SistemaStub(this));
-        this.gestorFinanzas = new GestorFinanzas(new SistemaStub(this));
-        this.gestorOfertas = new GestorOfertasImpl(marketplace);
-        this.gestorVentas = new GestorVentas(new SistemaStub(this), gestorFinanzas, gestorOfertas);
-        this.gestorTiquetes = new GestorTiquetes(new SistemaStub(this));
-        this.reporteador = new Reporteador(new SistemaStub(this), gestorFinanzas);
+        boletamaster.app.Sistema facade = new boletamaster.app.Sistema();
+
+        this.marketplace = new Marketplace(facade);
+        this.gestorFinanzas = new GestorFinanzas(facade);
+        this.gestorVentas = new GestorVentas(facade, gestorFinanzas, marketplace);
+        this.gestorTiquetes = new GestorTiquetes(facade);
+        this.reporteador = new Reporteador(facade, gestorFinanzas);
 
         this.eventos = new ArrayList<>();
         this.venues = new ArrayList<>();
@@ -52,12 +48,9 @@ public class BoletamasterSystem {
         return instance;
     }
 
-    public static void resetInstance() {
-        instance = null;
-    }
+    public static void resetInstance() { instance = null; }
 
-
-
+    // ===== Usuarios =====
     public void registrarUsuario(Usuario u) {
         if (u == null) throw new IllegalArgumentException("Usuario nulo");
         usuarios.add(u);
@@ -65,12 +58,12 @@ public class BoletamasterSystem {
     }
 
     public Usuario buscarUsuario(String login) {
-        for (Usuario u : usuarios) {
+        for (Usuario u : usuarios)
             if (u.getLogin().equals(login)) return u;
-        }
         return null;
     }
 
+    // ===== Venues y eventos =====
     public void agregarVenue(Venue v) {
         if (v == null) throw new IllegalArgumentException("Venue nulo");
         venues.add(v);
@@ -83,67 +76,17 @@ public class BoletamasterSystem {
         repo.addEvento(e);
     }
 
-    public List<Evento> getEventos() {
-        return new ArrayList<>(eventos);
-    }
+    public List<Evento> getEventos() { return new ArrayList<>(eventos); }
+    public List<Venue> getVenues() { return new ArrayList<>(venues); }
+    public List<Usuario> getUsuarios() { return new ArrayList<>(usuarios); }
 
-    public List<Venue> getVenues() {
-        return new ArrayList<>(venues);
-    }
-
-    public void registrarTicket(Ticket t) {
-        repo.addTicket(t);
-    }
-
-    public List<Ticket> getTickets() {
-        return repo.getTickets();
-    }
-
-
-    public void registrarTransaccion(Object transaccion) {
-        repo.addTransaccion(transaccion);
-    }
-
-    public List<Object> getTransacciones() {
-        return repo.getTransacciones();
-    }
-
-
-    public SimpleRepository getRepo() {
-        return repo;
-    }
-
-    public Marketplace getMarketplace() {
-        return marketplace;
-    }
-
-    public GestorFinanzas getGestorFinanzas() {
-        return gestorFinanzas;
-    }
-
-    public GestorOfertasImpl getGestorOfertas() {
-        return gestorOfertas;
-    }
-
-    public GestorVentas getGestorVentas() {
-        return gestorVentas;
-    }
-
-    public GestorTiquetes getGestorTiquetes() {
-        return gestorTiquetes;
-    }
-
-    public Reporteador getReporteador() {
-        return reporteador;
-    }
-
-    public boolean isTestingMode() {
-        return testingMode;
-    }
-
-    public void setTestingMode(boolean testingMode) {
-        this.testingMode = testingMode;
-    }
+    // ===== Getters =====
+    public SimpleRepository getRepo() { return repo; }
+    public Marketplace getMarketplace() { return marketplace; }
+    public GestorFinanzas getGestorFinanzas() { return gestorFinanzas; }
+    public GestorVentas getGestorVentas() { return gestorVentas; }
+    public GestorTiquetes getGestorTiquetes() { return gestorTiquetes; }
+    public Reporteador getReporteador() { return reporteador; }
 
     @Override
     public String toString() {
@@ -154,23 +97,5 @@ public class BoletamasterSystem {
                 ", tickets=" + repo.getTickets().size() +
                 '}';
     }
-
-    public Sistema getSistema() {
-        return new SistemaStub(this);
-    }
-
-    
-    private static class SistemaStub extends boletamaster.app.Sistema {
-        private final BoletamasterSystem core;
-
-        public SistemaStub(BoletamasterSystem core) {
-            super(); // evita bucles
-            this.core = core;
-        }
-
-        @Override
-        public SimpleRepository getRepo() {
-            return core.getRepo();
-        }
-    }
 }
+

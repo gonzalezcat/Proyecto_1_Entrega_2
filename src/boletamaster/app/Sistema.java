@@ -1,13 +1,15 @@
 package boletamaster.app;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import logica.BoletamasterSystem;
+import boletamaster.persistence.SimpleRepository;
 import boletamaster.eventos.*;
 import boletamaster.tiquetes.*;
 import boletamaster.transacciones.*;
 import boletamaster.usuarios.*;
-import boletamaster.persistence.SimpleRepository;
+import logica.BoletamasterSystem;
 
 public class Sistema {
 
@@ -17,7 +19,7 @@ public class Sistema {
         this.core = BoletamasterSystem.getInstance();
     }
 
-
+    // ===== Usuarios =====
     public void registrarUsuario(Usuario u) {
         core.registrarUsuario(u);
     }
@@ -26,7 +28,7 @@ public class Sistema {
         return core.buscarUsuario(login);
     }
 
-
+    // ===== Venues y Eventos =====
     public void registrarVenue(Venue v) {
         core.agregarVenue(v);
     }
@@ -36,10 +38,14 @@ public class Sistema {
     }
 
     public List<Evento> eventosActivosPorOrganizador(Organizador org) {
-        return core.getEventos();
+        List<Evento> resultado = new ArrayList<>();
+        for (Evento e : core.getEventos()) {
+            if (e.getOrganizador().equals(org)) resultado.add(e);
+        }
+        return resultado;
     }
 
-
+    // ===== Tickets =====
     public Ticket generarTicketSimple(Localidad loc) {
         return core.getGestorTiquetes().crearTicketSimple(loc);
     }
@@ -56,55 +62,61 @@ public class Sistema {
         return core.getGestorTiquetes().crearTicketDeluxe(loc);
     }
 
-
+    // ===== Compras y Transferencias =====
     public Compra comprarTicket(Usuario comprador, Ticket t) {
-        return core.getGestorVentas().procesarCompra((boletamaster.usuarios.Comprador) comprador,
-                                                    java.util.Collections.singletonList(t),
-                                                    true);
+        if (!(comprador instanceof Comprador)) 
+            throw new IllegalArgumentException("El usuario no es un comprador válido");
+        return core.getGestorVentas().procesarCompra((Comprador) comprador, Collections.singletonList(t), true);
     }
 
     public void transferirTicket(Ticket t, Usuario actual, String password, Usuario nuevo) {
         core.getGestorVentas().transferirTicket(t, actual, password, nuevo);
     }
 
-    
-    public java.util.List<Reembolso> cancelarEventoYReembolsar(Evento e, Administrador admin) {
-        
-        java.util.List<Reembolso> resultado = new java.util.ArrayList<>();
-        for (Ticket t : core.getSistema().getRepo().getTickets()) {
-            if (t.getEvento() != null && t.getEvento().equals(e)) {
-                if (t.getPropietario() != null) {
-                    double monto = t.getPrecioBase() + (t.getPrecioBase() * t.getPorcentajeServicio());
-                    t.getPropietario().depositarSaldo(monto);
-                    Reembolso r = new Reembolso(t.getPropietario(), monto);
-                    core.getSistema().getRepo().addTransaccion(r);
-                    resultado.add(r);
-                    t.setEstado(boletamaster.tiquetes.TicketEstado.CANCELADO);
-                }
+    // ===== Cancelación de eventos y reembolsos =====
+    public List<Reembolso> cancelarEventoYReembolsar(Evento e, Administrador admin) {
+        List<Reembolso> resultado = new ArrayList<>();
+        for (Ticket t : core.getRepo().getTickets()) {
+            if (t.getEvento() != null && t.getEvento().equals(e) && t.getPropietario() != null) {
+                double monto = t.getPrecioBase() + (t.getPrecioBase() * t.getPorcentajeServicio());
+                t.getPropietario().depositarSaldo(monto);
+                Reembolso r = new Reembolso(t.getPropietario(), monto);
+                core.getRepo().addTransaccion(r);
+                resultado.add(r);
+                t.setEstado(TicketEstado.CANCELADO);
             }
         }
         return resultado;
     }
 
-    
+    // ===== Reportes =====
     public void reporteFinancieroPorOrganizador(Organizador org) {
-        core.getReporteador(); 
-        core.getReporteador(); 
+        core.getReporteador().generarReportePorOrganizador(org);
     }
 
-    
+    // ===== Repositorio =====
     public SimpleRepository getRepo() {
-     
-        return core.getSistema().getRepo();
+        return core.getRepo();
     }
 
+    // ===== Configuración global =====
     public void setCuotaFijaGlobal(double cuotaFijaGlobal) {
-
-
+        core.getGestorFinanzas().setCuotaFijaGlobal(cuotaFijaGlobal);
     }
 
     public void setPorcentajeServicioGlobal(double porcentajeServicioGlobal) {
-
+        core.getGestorFinanzas().setPorcentajeServicioGlobal(porcentajeServicioGlobal);
     }
-}
+    public Localidad buscarLocalidad(String nombre) {
+        if (nombre == null || nombre.isEmpty()) return null;
 
+        for (Evento e : core.getEventos()) {
+            for (Localidad loc : e.getLocalidades()) { 
+                if (loc.getNombre().equalsIgnoreCase(nombre)) {
+                    return loc;
+                }
+            }
+        }
+        return null; 
+}
+}

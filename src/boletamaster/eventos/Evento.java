@@ -13,7 +13,8 @@ public class Evento {
     private final Venue venue;
     private final Organizador organizador;
     private final List<Localidad> localidades;
-    private final List<Ticket> tickets; // tickets asociados a este evento
+    private final List<Ticket> tickets;
+    private final List<Oferta> ofertas; // ✅ agregado
     private boolean cancelado;
 
     public Evento(String id, String nombre, LocalDateTime fechaHora, Venue venue, Organizador organizador) {
@@ -24,6 +25,7 @@ public class Evento {
         this.organizador = organizador;
         this.localidades = new ArrayList<>();
         this.tickets = new ArrayList<>();
+        this.ofertas = new ArrayList<>(); // ✅ inicialización
         this.cancelado = false;
     }
 
@@ -38,17 +40,23 @@ public class Evento {
 
     public void addLocalidad(Localidad loc) { this.localidades.add(loc); }
 
-    /** tickets asociados **/
     public void addTicket(Ticket t) {
         if (t == null) throw new IllegalArgumentException("Ticket nulo");
         tickets.add(t);
         t.setEvento(this);
     }
+
     public List<Ticket> getTickets() { return tickets; }
 
-    /**
-     * Devuelve la capacidad total del evento
-     */
+    // ✅ Nuevo método requerido por GestorVentas
+    public List<Oferta> getOfertas() {
+        return ofertas;
+    }
+
+    public void agregarOferta(Oferta o) {
+        if (o != null) ofertas.add(o);
+    }
+
     public int limiteTickets() {
         int total = 0;
         for (Localidad l : localidades) total += l.getCapacidad();
@@ -57,6 +65,7 @@ public class Evento {
 
     @Override
     public String toString() {
-        return "Evento{" + nombre + " en " + venue.getNombre() + " el " + fechaHora + ", organizador=" + organizador.getNombre() + "}";
+        return "Evento{" + nombre + " en " + venue.getNombre() + " el " + fechaHora +
+               ", organizador=" + organizador.getNombre() + "}";
     }
 }

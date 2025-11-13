@@ -48,7 +48,7 @@ public class MainComprador {
                         comprarEnPlataforma(sistema, comprador);
                         break;
                     case 4:
-                        marketplaceUI.menu(comprador);
+                        marketplaceUI.menu();
                         break;
                     case 5:
                         System.out.println("Sesión finalizada. ¡Hasta luego!");

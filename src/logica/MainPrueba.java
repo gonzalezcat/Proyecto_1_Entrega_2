@@ -9,7 +9,7 @@ public class MainPrueba {
         BoletamasterSystem sistema = BoletamasterSystem.getInstance();
 
         try {
-            // 1️⃣ Registrar organizador manualmente
+            // 1️⃣ Registrar organizador
             Organizador organizador = new Organizador("org1", "pass456", "Eventos SA");
             sistema.registrarUsuario(organizador);
 
@@ -17,9 +17,14 @@ public class MainPrueba {
             Venue venue = new Venue("V001", "Estadio Nacional", "Ciudad", 50000, true);
             sistema.agregarVenue(venue);
 
-            // 3️⃣ Crear evento
-            Evento evento = new Evento("E001", "Concierto Rock", organizador,
-                    LocalDateTime.now().plusDays(30), venue, TipoEvento.MUSICAL);
+            // 3️⃣ Crear evento (sin TipoEvento, según tu clase actual)
+            Evento evento = new Evento(
+                "E001",
+                "Concierto Rock",
+                LocalDateTime.now().plusDays(30),
+                venue,
+                organizador
+            );
             sistema.agregarEvento(evento);
 
             // 4️⃣ Verificar datos
@@ -37,3 +42,4 @@ public class MainPrueba {
         }
     }
 }
+

@@ -3,10 +3,10 @@ package logica;
 import boletamaster.app.Sistema;
 import boletamaster.transacciones.Compra;
 import boletamaster.usuarios.*;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class Reporteador {
 
@@ -20,9 +20,8 @@ public class Reporteador {
         this.gestorFinanzas = gestorFinanzas;
     }
 
-    public Map<String, Object> generarReporteOrganizador(Organizador org,
-                                                         LocalDateTime inicio,
-                                                         LocalDateTime fin) {
+    // ===== Reporte por organizador =====
+    public Map<String, Object> generarReportePorOrganizador(Organizador org) {
         Map<String, Object> reporte = new HashMap<>();
         double total = 0.0;
         int vendidos = 0;
@@ -36,12 +35,14 @@ public class Reporteador {
 
         reporte.put("tipo", "ORGANIZADOR");
         reporte.put("organizador", org.getNombre());
-        reporte.put("periodo", inicio + " a " + fin);
         reporte.put("ticketsVendidos", vendidos);
         reporte.put("ganancias", total);
+        reporte.put("cuotaFijaGlobal", gestorFinanzas.getCuotaFijaGlobal());
+        reporte.put("porcentajeServicioGlobal", gestorFinanzas.getPorcentajeServicioGlobal());
         return reporte;
     }
 
+    // ===== Reporte por administrador =====
     public Map<String, Object> generarReporteAdministrador(LocalDateTime inicio, LocalDateTime fin) {
         Map<String, Object> reporte = new HashMap<>();
         double total = 0.0;
@@ -55,7 +56,8 @@ public class Reporteador {
         reporte.put("tipo", "ADMINISTRADOR");
         reporte.put("periodo", inicio + " a " + fin);
         reporte.put("ingresosTotales", total);
-        reporte.put("cuotaFijaGlobal", sistema.getRepo().getTickets().size() > 0 ? "Variable según ticket" : "N/A");
+        reporte.put("cuotaFijaGlobal", gestorFinanzas.getCuotaFijaGlobal());
+        reporte.put("porcentajeServicioGlobal", gestorFinanzas.getPorcentajeServicioGlobal());
         return reporte;
     }
 
@@ -67,4 +69,3 @@ public class Reporteador {
         return sb.toString();
     }
 }
-

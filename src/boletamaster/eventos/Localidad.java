@@ -2,6 +2,7 @@ package boletamaster.eventos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Localidad {
     private final String id;
@@ -38,4 +39,16 @@ public class Localidad {
     public String toString() {
         return "Localidad{" + nombre + ", precioBase=" + precioBase + ", capacidad=" + capacidad + ", numerada=" + numerada + '}';
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Localidad localidad = (Localidad) o;
+        return Objects.equals(id, localidad.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+    
 }

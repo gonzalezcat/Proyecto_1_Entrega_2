@@ -1,30 +1,56 @@
-package boletamaster.marketplace;
+package boletamaster.eventos;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import boletamaster.tiquetes.Ticket;
+import boletamaster.tiquetes.TicketSimple;
 import boletamaster.usuarios.Usuario;
+import boletamaster.eventos.Localidad;
 
 public class Oferta {
+
     private final String id;
     private final Ticket ticket;
     private final Usuario vendedor;
     private double precioPublico;
     private boolean activa;
     private final LocalDateTime fechaCreacion;
+    private final LocalDateTime inicio;
+    private final LocalDateTime fin;
+    private final double porcentajeDescuento;
     private final List<ContraOferta> contraOfertas;
 
-    public Oferta(Ticket ticket, Usuario vendedor, double precioPublico) {
+    // Constructor usado por MarketplaceUI con Ticket y vendedor
+    public Oferta(Ticket ticket, Usuario vendedor, double precioPublico,
+                  double porcentajeDescuento, LocalDateTime inicio, LocalDateTime fin) {
         this.id = java.util.UUID.randomUUID().toString();
         this.ticket = ticket;
         this.vendedor = vendedor;
         this.precioPublico = precioPublico;
         this.activa = true;
         this.fechaCreacion = LocalDateTime.now();
+        this.porcentajeDescuento = porcentajeDescuento;
+        this.inicio = inicio;
+        this.fin = fin;
         this.contraOfertas = new ArrayList<>();
     }
 
+    // Constructor usado por Marketplace con solo Localidad y porcentaje
+    public Oferta(Localidad loc, double porcentajeDescuento, LocalDateTime inicio, LocalDateTime fin) {
+        this.id = java.util.UUID.randomUUID().toString();
+        this.ticket = new TicketSimple(loc); // ticket concreto
+        this.vendedor = null;                 
+        this.precioPublico = 0.0;
+        this.activa = true;
+        this.fechaCreacion = LocalDateTime.now();
+        this.porcentajeDescuento = porcentajeDescuento;
+        this.inicio = inicio;
+        this.fin = fin;
+        this.contraOfertas = new ArrayList<>();
+    }
+
+    // ===== Getters y setters =====
     public String getId() { return id; }
     public Ticket getTicket() { return ticket; }
     public Usuario getVendedor() { return vendedor; }
@@ -39,10 +65,25 @@ public class Oferta {
         contraOfertas.add(co);
     }
 
-    public boletamaster.eventos.Localidad getLocalidad() {
+    // ===== Métodos para MarketplaceUI =====
+    public Localidad getLocalidad() {
         return ticket.getLocalidad();
     }
 
+    public double getPorcentajeDescuento() {
+        return porcentajeDescuento;
+    }
+
+    public boolean estaVigente() {
+        LocalDateTime now = LocalDateTime.now();
+        return activa && (inicio == null || !now.isBefore(inicio)) && (fin == null || !now.isAfter(fin));
+    }
+    
+    public double aplicarDescuento(double precio) {
+        return precio * (1.0 - porcentajeDescuento);
+    }
+
+    // ===== Clase interna para contraofertas =====
     public static class ContraOferta {
         private final Usuario comprador;
         private final double precio;
@@ -59,3 +100,4 @@ public class Oferta {
         public LocalDateTime getFecha() { return fecha; }
     }
 }
+

@@ -1,34 +1,33 @@
 package logica;
 
 import boletamaster.app.Sistema;
-import boletamaster.marketplace.Oferta;
+import boletamaster.eventos.Oferta;
 import boletamaster.tiquetes.*;
 import boletamaster.transacciones.Compra;
 import boletamaster.usuarios.Comprador;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * GestorVentas: procesa la compra y transferencia de tickets,
- * verificando restricciones y aplicando ofertas cuando existan.
+ * GestorVentas: gestiona compras de tickets aplicando ofertas vigentes por localidad
+ * y validando restricciones de transacción.
  */
 public class GestorVentas {
 
     private final GestorFinanzas gestorFinanzas;
-    private final GestorOfertas gestorOfertas;
     private final Sistema sistema;
 
-    public GestorVentas(Sistema sistema, GestorFinanzas gestorFinanzas, GestorOfertas gestorOfertas) {
+    public GestorVentas(Sistema sistema, GestorFinanzas gestorFinanzas, Object unused) {
         if (sistema == null) throw new IllegalArgumentException("Sistema requerido");
         if (gestorFinanzas == null) throw new IllegalArgumentException("GestorFinanzas requerido");
-        if (gestorOfertas == null) throw new IllegalArgumentException("GestorOfertas requerido");
         this.sistema = sistema;
         this.gestorFinanzas = gestorFinanzas;
-        this.gestorOfertas = gestorOfertas;
     }
 
-    
+    /**
+     * Procesa la compra de uno o varios tickets.
+     * Si hay ofertas vigentes para la localidad del ticket, aplica el descuento.
+     */
     public Compra procesarCompra(Comprador comprador, List<Ticket> tickets, boolean usarSaldo) {
         if (comprador == null) throw new IllegalArgumentException("Comprador nulo");
         if (tickets == null || tickets.isEmpty()) throw new IllegalArgumentException("Lista de tickets vacía");
@@ -36,9 +35,14 @@ public class GestorVentas {
         verificarRestricciones(tickets);
 
         double montoTotal = 0.0;
+
         for (Ticket t : tickets) {
-            Optional<Oferta> of = gestorOfertas.obtenerOfertaVigente(t);
-            montoTotal += of.map(Oferta::getPrecioPublico).orElse(t.precioFinal());
+            double precio = t.precioFinal();
+            Oferta oferta = buscarOfertaVigente(t);
+            if (oferta != null) {
+                precio = oferta.aplicarDescuento(precio);
+            }
+            montoTotal += precio;
         }
 
         if (usarSaldo) {
@@ -57,6 +61,11 @@ public class GestorVentas {
         return compra;
     }
 
+    /**
+     * Verifica restricciones de compra:
+     * - Máximo 10 tickets por transacción
+     * - Tickets deben estar disponibles y no vencidos
+     */
     private void verificarRestricciones(List<Ticket> tickets) {
         final int maxTickets = 10;
         if (tickets.size() > maxTickets)
@@ -70,6 +79,23 @@ public class GestorVentas {
         }
     }
 
+    /**
+     * Busca una oferta vigente que aplique a la localidad del ticket.
+     */
+    private Oferta buscarOfertaVigente(Ticket t) {
+        for (Oferta o : sistema.getRepo().getEventos().stream()
+                .flatMap(e -> e.getOfertas().stream())
+                .toList()) {
+            if (o.getLocalidad().equals(t.getLocalidad()) && o.estaVigente()) {
+                return o;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Transfiere un ticket a otro usuario.
+     */
     public void transferirTicket(Ticket ticket,
                                  boletamaster.usuarios.Usuario actual,
                                  String password,
@@ -77,3 +103,4 @@ public class GestorVentas {
         sistema.transferirTicket(ticket, actual, password, nuevo);
     }
 }
+

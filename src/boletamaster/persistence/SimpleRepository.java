@@ -6,7 +6,7 @@ import boletamaster.usuarios.*;
 import boletamaster.eventos.*;
 import boletamaster.tiquetes.*;
 import boletamaster.transacciones.*;
-import boletamaster.marketplace.*;
+import boletamaster.marketplace.LogRegistro;
 
 public class SimpleRepository implements Serializable {
 
@@ -15,8 +15,8 @@ public class SimpleRepository implements Serializable {
     private final List<Evento> eventos;
     private final List<Ticket> tickets;
     private final List<Object> transacciones;
-    private List<Oferta> ofertas;
-    private List<LogRegistro> log;
+    private final List<Oferta> ofertas;
+    private final List<LogRegistro> log;
 
     public SimpleRepository() {
         this.usuarios = DataManager.cargarLista(PersistenceConfig.USERS_FILE);
@@ -28,7 +28,7 @@ public class SimpleRepository implements Serializable {
         this.log = DataManager.cargarLista(PersistenceConfig.LOG_FILE);
     }
 
-    // Getters
+    // --- Getters ---
     public List<Usuario> getUsuarios() { return usuarios; }
     public List<Venue> getVenues() { return venues; }
     public List<Evento> getEventos() { return eventos; }
@@ -37,7 +37,6 @@ public class SimpleRepository implements Serializable {
     public List<Oferta> getOfertas() { return ofertas; }
     public List<LogRegistro> getLog() { return log; }
 
-    // Métodos de adición con persistencia inmediata
     public void addUsuario(Usuario u) {
         usuarios.add(u);
         DataManager.guardarLista(PersistenceConfig.USERS_FILE, usuarios);
@@ -73,5 +72,6 @@ public class SimpleRepository implements Serializable {
         DataManager.guardarLista(PersistenceConfig.LOG_FILE, log);
     }
 }
+
 
 

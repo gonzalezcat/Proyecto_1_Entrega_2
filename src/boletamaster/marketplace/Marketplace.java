@@ -2,6 +2,8 @@ package boletamaster.marketplace;
 
 import java.util.*;
 import boletamaster.app.Sistema;
+import boletamaster.eventos.Oferta;
+import boletamaster.eventos.Localidad;
 import boletamaster.tiquetes.*;
 import boletamaster.usuarios.*;
 import boletamaster.transacciones.*;
@@ -23,98 +25,34 @@ public class Marketplace {
     private void registrarLog(String desc) {
         LogRegistro r = new LogRegistro(desc);
         log.add(r);
-        // 🔽 Persistencia del log
         sistema.getRepo().addLog(r);
     }
 
-    public Ticket buscarTicketPorId(String id) {
-        for (Object o : sistema.getRepo().getTickets()) {
-            if (!(o instanceof Ticket)) continue;
-            Ticket t = (Ticket) o;
-            if (t.getId().equals(id)) return t;
-        }
-        return null;
+    public Oferta publicarOferta(Localidad loc, double porcentajeDescuento, 
+                                 java.time.LocalDateTime inicio, java.time.LocalDateTime fin) {
+        if (loc == null) throw new IllegalArgumentException("Localidad nula");
+        if (porcentajeDescuento <= 0 || porcentajeDescuento >= 1)
+            throw new IllegalArgumentException("Porcentaje inválido");
+
+        Oferta oferta = new Oferta(loc, porcentajeDescuento, inicio, fin);
+        ofertas.add(oferta);
+        sistema.getRepo().addOferta(oferta);
+        registrarLog("PUBLICÓ OFERTA " + oferta.getId() + " en " + loc.getNombre());
+        return oferta;
     }
 
-    public Oferta publicarOferta(String ticketId, Usuario vendedor, double precio) {
-        Ticket ticket = buscarTicketPorId(ticketId);
-        if (ticket == null) throw new IllegalArgumentException("Ticket no existe");
-        if (ticket.getPropietario() == null || !ticket.getPropietario().getLogin().equals(vendedor.getLogin()))
-            throw new IllegalStateException("No es propietario del ticket");
-        if (ticket.ticketVencido()) throw new IllegalStateException("Ticket vencido");
-        if (ticket.getEstado() != TicketEstado.VENDIDO && ticket.getEstado() != TicketEstado.TRANSFERIDO)
-            throw new IllegalStateException("Ticket no válido para reventa");
-
-        Oferta of = new Oferta(ticket, vendedor, precio);
-        ofertas.add(of);
-        // 🔽 Persistencia de oferta
-        sistema.getRepo().addOferta(of);
-        registrarLog("PUBLICÓ OFERTA " + of.getId() + " de " + vendedor.getLogin() + " ticket=" + ticket.getId());
-        return of;
-    }
-
-    public void cancelarOferta(String id, Usuario vendedor) {
+    public void cancelarOferta(String id) {
         Oferta o = getOfertaActiva(id);
-        if (!o.getVendedor().getLogin().equals(vendedor.getLogin()))
-            throw new IllegalStateException("Solo el vendedor puede cancelarla");
         o.setActiva(false);
-        // 🔽 Actualizamos persistencia
         sistema.getRepo().addOferta(o);
-        registrarLog("CANCELÓ OFERTA " + id + " por " + vendedor.getLogin());
+        registrarLog("CANCELÓ OFERTA " + id);
     }
 
-    public void comprarOferta(String id, Usuario comprador) {
-        Oferta o = getOfertaActiva(id);
-        Ticket t = o.getTicket();
-
-        if (t.ticketVencido()) throw new IllegalStateException("Ticket vencido");
-        if (comprador.getLogin().equals(o.getVendedor().getLogin()))
-            throw new IllegalStateException("No puede comprar su propia oferta");
-
-        double precio = o.getPrecioPublico();
-        if (comprador.getSaldo() < precio)
-            throw new IllegalStateException("Saldo insuficiente");
-
-        comprador.descontarSaldo(precio);
-        o.getVendedor().depositarSaldo(precio);
-        t.setEstado(TicketEstado.TRANSFERIDO);
-        t.propietario = comprador;
-
-        o.setActiva(false);
-        // 🔽 Guardar compra y cambios
-        sistema.getRepo().addTransaccion(new Compra(comprador, precio));
-        sistema.getRepo().addOferta(o);
-        registrarLog("COMPRA OFERTA " + id + " comprador=" + comprador.getLogin() + " vendedor=" + o.getVendedor().getLogin());
-    }
-
-    public void contraOfertar(String id, Usuario comprador, double precio) {
-        Oferta o = getOfertaActiva(id);
-        o.agregarContraOferta(new Oferta.ContraOferta(comprador, precio));
-        // 🔽 Persistencia y log
-        sistema.getRepo().addOferta(o);
-        registrarLog("CONTRAOFERTA en " + id + " por " + comprador.getLogin() + " precio=" + precio);
-    }
-
-    public void aceptarContraOferta(String id, Usuario vendedor, int indice) {
-        Oferta o = getOfertaActiva(id);
-        if (!o.getVendedor().getLogin().equals(vendedor.getLogin()))
-            throw new IllegalStateException("Solo el vendedor puede aceptar");
-
-        Oferta.ContraOferta co = o.getContraOfertas().get(indice);
-        Usuario comprador = co.getComprador();
-        double precio = co.getPrecio();
-
-        comprador.descontarSaldo(precio);
-        vendedor.depositarSaldo(precio);
-
-        o.getTicket().setEstado(TicketEstado.TRANSFERIDO);
-        o.getTicket().propietario = comprador;
-        o.setActiva(false);
-
-        // 🔽 Persistencia total
-        sistema.getRepo().addTransaccion(new Compra(comprador, precio));
-        sistema.getRepo().addOferta(o);
-        registrarLog("ACEPTÓ CONTRAOFERTA " + id + " comprador=" + comprador.getLogin() + " vendedor=" + vendedor.getLogin());
+    public List<Oferta> listarOfertasVigentes() {
+        List<Oferta> vigentes = new ArrayList<>();
+        for (Oferta o : ofertas)
+            if (o.estaVigente()) vigentes.add(o);
+        return vigentes;
     }
 
     private Oferta getOfertaActiva(String id) {
@@ -123,11 +61,5 @@ public class Marketplace {
                 return o;
         throw new IllegalArgumentException("Oferta no activa o inexistente");
     }
-
-    public List<Oferta> listarOfertasActivas() {
-        List<Oferta> r = new ArrayList<>();
-        for (Oferta o : ofertas)
-            if (o.isActiva()) r.add(o);
-        return r;
-    }
 }
+

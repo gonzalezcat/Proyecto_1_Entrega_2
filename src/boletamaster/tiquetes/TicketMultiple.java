@@ -1,5 +1,6 @@
 package boletamaster.tiquetes;
-
+import boletamaster.eventos.Evento;
+import boletamaster.eventos.Localidad;
 import java.util.ArrayList;
 import java.util.List;
 import boletamaster.usuarios.Usuario;
@@ -8,8 +9,9 @@ public class TicketMultiple extends Ticket {
     private final List<Ticket> elementos; // tickets que componen el paquete
     private boolean paqueteTransferido; // si se ha transferido el paquete
 
-    public TicketMultiple(double precioBase, double porcentajeServicio, double cuotaFija) {
-        super(precioBase, porcentajeServicio, cuotaFija);
+    public TicketMultiple(Evento evento, Localidad localidad, double precioBase, 
+            double porcentajeServicio, double cuotaFija) {
+        super(evento, localidad, precioBase, porcentajeServicio, cuotaFija);
         this.elementos = new ArrayList<>();
         this.paqueteTransferido = false;
     }
@@ -23,10 +25,11 @@ public class TicketMultiple extends Ticket {
 
     @Override
     public boolean esTransferible() {
-        // transferible si solo si ninguno de sus elementos ha sido transferido y todos sin usar
+        
         if (paqueteTransferido) return false;
         for (Ticket t : elementos) {
             if (t.getEstado() == TicketEstado.TRANSFERIDO) return false;
+        
             if (t.getEstado() == TicketEstado.USADO) return false;
         }
         return true;
@@ -50,3 +53,4 @@ public class TicketMultiple extends Ticket {
         return elementos.size();
     }
 }
+

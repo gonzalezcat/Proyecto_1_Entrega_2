@@ -1,35 +1,50 @@
 package boletamaster.tiquetes;
-
+import java.util.UUID;
 import java.time.LocalDateTime;
 import boletamaster.eventos.Evento;
 import boletamaster.usuarios.Usuario;
+import boletamaster.eventos.Localidad;
+import boletamaster.eventos.Oferta;
 
 public abstract class Ticket {
     protected final String id;
+    protected Evento evento;
+    
+
+	protected final Localidad localidad;
     protected final double precioBase;
     protected final double porcentajeServicio;
     protected final double cuotaFija;
     protected TicketEstado estado;
     public Usuario propietario; // null si no vendido
-    protected Evento evento; // referencia al evento asociado 
+    // referencia al evento asociado 
 
-    public Ticket(double precioBase, double porcentajeServicio, double cuotaFija) {
-        this.id = java.util.UUID.randomUUID().toString();
+    public Ticket(Evento evento, Localidad localidad, double precioBase, double porcentajeServicio, double cuotaFija) {
+    	this.id = UUID.randomUUID().toString();
+        this.evento = evento;           // ✅ INICIALIZAR evento
+        this.localidad = localidad;
         this.precioBase = precioBase;
         this.porcentajeServicio = porcentajeServicio;
         this.cuotaFija = cuotaFija;
         this.estado = TicketEstado.DISPONIBLE;
     }
 
-    public String getId() { return id; }
+    
+	
+
+	public String getId() { return id; }
+    public Evento getEvento() { return evento; }
+    public Localidad getLocalidad() { return localidad; }
     public double getPrecioBase() { return precioBase; }
     public double getPorcentajeServicio() { return porcentajeServicio; }
     public double getCuotaFija() { return cuotaFija; }
     public TicketEstado getEstado() { return estado; }
     public Usuario getPropietario() { return propietario; }
+    
+    public void setEvento(Evento evento) {
+		this.evento = evento;
+	}
 
-    public Evento getEvento() { return evento; }
-    public void setEvento(Evento e) { this.evento = e; }
 
     public void setEstado(TicketEstado nuevoEstado) {
         if (nuevoEstado == null) throw new IllegalArgumentException("Estado no puede ser null");
@@ -59,6 +74,14 @@ public abstract class Ticket {
         this.propietario = nuevoPropietario;
         this.estado = TicketEstado.TRANSFERIDO;
     }
+    public double precioConDescuento(Oferta oferta) {
+        if (oferta != null && oferta.estaVigente() && 
+            oferta.getLocalidad().equals(this.localidad)) {
+            return oferta.aplicarDescuento(precioFinal());
+        }
+        return precioFinal();
+    }
+    
 
     /**
      * Un ticket esta vencido si el evento ya fue

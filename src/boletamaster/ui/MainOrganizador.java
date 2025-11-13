@@ -7,13 +7,17 @@ import boletamaster.eventos.Venue;
 import boletamaster.tiquetes.*;
 import boletamaster.usuarios.Organizador;
 import boletamaster.usuarios.Usuario;
+import logica.BoletamasterSystem;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class MainOrganizador {
     public static void main(String[] args) {
-        Sistema sistema = new Sistema();
+    	BoletamasterSystem core = BoletamasterSystem.getInstance();
+    	
+        Sistema sistema = new Sistema(core);
+
 
         System.out.println("=== BoletaMaster - Interfaz Organizador ===");
         String login = ConsoleUtils.readLine("Login");

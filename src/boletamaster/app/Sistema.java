@@ -15,9 +15,12 @@ public class Sistema {
 
     private final BoletamasterSystem core;
 
-    public Sistema() {
-        this.core = BoletamasterSystem.getInstance();
+    // --- CRITICAL FIX: Constructor now takes the core system instance ---
+    public Sistema(BoletamasterSystem core) {
+        if (core == null) throw new IllegalArgumentException("Core system cannot be null.");
+        this.core = core;
     }
+    // -------------------------------------------------------------------
 
     // ===== Usuarios =====
     public void registrarUsuario(Usuario u) {
@@ -78,6 +81,7 @@ public class Sistema {
         List<Reembolso> resultado = new ArrayList<>();
         for (Ticket t : core.getRepo().getTickets()) {
             if (t.getEvento() != null && t.getEvento().equals(e) && t.getPropietario() != null) {
+                // Calculation of refund amount (precio base + service fee)
                 double monto = t.getPrecioBase() + (t.getPrecioBase() * t.getPorcentajeServicio());
                 t.getPropietario().depositarSaldo(monto);
                 Reembolso r = new Reembolso(t.getPropietario(), monto);
@@ -107,6 +111,7 @@ public class Sistema {
     public void setPorcentajeServicioGlobal(double porcentajeServicioGlobal) {
         core.getGestorFinanzas().setPorcentajeServicioGlobal(porcentajeServicioGlobal);
     }
+    
     public Localidad buscarLocalidad(String nombre) {
         if (nombre == null || nombre.isEmpty()) return null;
 
@@ -118,5 +123,33 @@ public class Sistema {
             }
         }
         return null; 
-}
+    }
+
+    public List<Ticket> obtenerTicketsPorPropietario(Comprador cliente) {
+        List<Ticket> ticketsDelCliente = new ArrayList<>();
+        
+        for (Object o : core.getRepo().getTickets()) {
+            if (!(o instanceof Ticket)) continue;
+            
+            Ticket t = (Ticket) o;
+            
+            if (t.getPropietario() != null && t.getPropietario().getLogin().equals(cliente.getLogin())) {
+                ticketsDelCliente.add(t);
+            }
+        }
+        return ticketsDelCliente;
+    }
+
+    public Ticket buscarTicketGlobalPorId(String idTicket) {
+        for (Object o : core.getRepo().getTickets()) {
+            if (!(o instanceof Ticket)) continue;
+            
+            Ticket t = (Ticket) o;
+            
+            if (t.getId().equals(idTicket)) {
+                return t;
+            }
+        }
+        return null; 
+    }
 }

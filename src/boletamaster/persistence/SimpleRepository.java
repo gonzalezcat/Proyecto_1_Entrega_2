@@ -7,6 +7,7 @@ import boletamaster.eventos.*;
 import boletamaster.tiquetes.*;
 import boletamaster.transacciones.*;
 import boletamaster.marketplace.LogRegistro;
+import boletamaster.marketplace.Oferta;
 
 public class SimpleRepository implements Serializable {
 
@@ -62,8 +63,8 @@ public class SimpleRepository implements Serializable {
         DataManager.guardarLista(PersistenceConfig.TRANSACCIONES_FILE, transacciones);
     }
 
-    public void addOferta(Oferta o) {
-        ofertas.add(o);
+    public void addOferta(Oferta oferta) {
+        ofertas.add(oferta);
         DataManager.guardarLista(PersistenceConfig.MARKET_FILE, ofertas);
     }
 

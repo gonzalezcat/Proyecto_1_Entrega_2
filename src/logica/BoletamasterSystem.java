@@ -20,6 +20,8 @@ public class BoletamasterSystem {
     private final GestorVentas gestorVentas;
     private final GestorTiquetes gestorTiquetes;
     private final Reporteador reporteador;
+    // NOTE: If you add GestorUsuarios here later, update this file!
+    // private final GestorUsuarios gestorUsuarios;
 
     private final List<Evento> eventos;
     private final List<Venue> venues;
@@ -30,17 +32,23 @@ public class BoletamasterSystem {
     private BoletamasterSystem() {
         this.repo = new SimpleRepository();
 
-        boletamaster.app.Sistema facade = new boletamaster.app.Sistema();
+        // --- CRITICAL FIX: Pass 'this' to the Sistema constructor ---
+        // This breaks the infinite loop because 'Sistema' no longer calls getInstance().
+        boletamaster.app.Sistema facade = new boletamaster.app.Sistema(this);
 
         this.marketplace = new Marketplace(facade);
         this.gestorFinanzas = new GestorFinanzas(facade);
-        this.gestorVentas = new GestorVentas(facade, gestorFinanzas, marketplace);
+        // FIX: Removed the extraneous 'marketplace' argument from GestorVentas (now only 2 args)
+        this.gestorVentas = new GestorVentas(facade, gestorFinanzas); 
         this.gestorTiquetes = new GestorTiquetes(facade);
         this.reporteador = new Reporteador(facade, gestorFinanzas);
 
+        // NOTE: These should ideally load data, but per your request, they remain empty Array Lists
         this.eventos = new ArrayList<>();
         this.venues = new ArrayList<>();
         this.usuarios = new ArrayList<>();
+        // If you were using GestorUsuarios, you'd initialize it here:
+        // this.gestorUsuarios = new GestorUsuarios(this.usuarios); 
     }
 
     public static BoletamasterSystem getInstance() {
@@ -50,7 +58,7 @@ public class BoletamasterSystem {
 
     public static void resetInstance() { instance = null; }
 
-    // ===== Usuarios =====
+    // ===== Usuarios (If not using GestorUsuarios) =====
     public void registrarUsuario(Usuario u) {
         if (u == null) throw new IllegalArgumentException("Usuario nulo");
         usuarios.add(u);
@@ -98,4 +106,3 @@ public class BoletamasterSystem {
                 '}';
     }
 }
-

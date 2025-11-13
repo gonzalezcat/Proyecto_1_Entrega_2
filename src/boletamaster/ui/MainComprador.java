@@ -7,11 +7,14 @@ import boletamaster.tiquetes.Ticket;
 import boletamaster.transacciones.Compra;
 import boletamaster.usuarios.Comprador;
 import boletamaster.usuarios.Usuario;
+import logica.BoletamasterSystem;
 
 public class MainComprador {
 
     public static void main(String[] args) {
-        Sistema sistema = new Sistema();
+    	BoletamasterSystem core = BoletamasterSystem.getInstance();
+    	
+        Sistema sistema = new Sistema(core);
 
         System.out.println("=== BoletaMaster - Interfaz Comprador ===");
         String login = ConsoleUtils.readLine("Login");
@@ -25,7 +28,7 @@ public class MainComprador {
 
         Comprador comprador = (Comprador) u;
         Marketplace marketplace = new Marketplace(sistema);
-        MarketplaceUI marketplaceUI = new MarketplaceUI(marketplace, sistema);
+        MarketplaceUI marketplaceUI = new MarketplaceUI(marketplace, sistema, comprador);
 
         while (true) {
             System.out.println("\n--- Menú Comprador ---");

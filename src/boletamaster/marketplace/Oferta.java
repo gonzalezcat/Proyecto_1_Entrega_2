@@ -10,11 +10,12 @@ public class Oferta {
     private final String id;
     private final Ticket ticket;
     private final Usuario vendedor;
-    private double precioPublico;
+    private double precioPublico; // Initial asking price
     private boolean activa;
     private final LocalDateTime fechaCreacion;
     private final List<ContraOferta> contraOfertas;
 
+    // Resale Constructor (uses specific Ticket and price)
     public Oferta(Ticket ticket, Usuario vendedor, double precioPublico) {
         this.id = java.util.UUID.randomUUID().toString();
         this.ticket = ticket;
@@ -25,11 +26,11 @@ public class Oferta {
         this.contraOfertas = new ArrayList<>();
     }
 
+    // --- Getters and Setters ---
     public String getId() { return id; }
     public Ticket getTicket() { return ticket; }
     public Usuario getVendedor() { return vendedor; }
     public double getPrecioPublico() { return precioPublico; }
-    public void setPrecioPublico(double p) { this.precioPublico = p; }
     public boolean isActiva() { return activa; }
     public void setActiva(boolean a) { this.activa = a; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
@@ -38,11 +39,19 @@ public class Oferta {
     public void agregarContraOferta(ContraOferta co) {
         contraOfertas.add(co);
     }
-
-    public boletamaster.eventos.Localidad getLocalidad() {
-        return ticket.getLocalidad();
+    
+    /**
+     * Returns the price that must be accepted/paid (initial price or latest counteroffer).
+     */
+    public double getPrecioActual() {
+        if (!contraOfertas.isEmpty()) {
+            // Return the price of the last counteroffer
+            return contraOfertas.get(contraOfertas.size() - 1).getPrecio();
+        }
+        return precioPublico;
     }
 
+    // --- ContraOferta Inner Class ---
     public static class ContraOferta {
         private final Usuario comprador;
         private final double precio;

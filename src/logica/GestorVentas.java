@@ -17,7 +17,7 @@ public class GestorVentas {
     private final GestorFinanzas gestorFinanzas;
     private final Sistema sistema;
 
-    public GestorVentas(Sistema sistema, GestorFinanzas gestorFinanzas, Object unused) {
+    public GestorVentas(Sistema sistema, GestorFinanzas gestorFinanzas) { 
         if (sistema == null) throw new IllegalArgumentException("Sistema requerido");
         if (gestorFinanzas == null) throw new IllegalArgumentException("GestorFinanzas requerido");
         this.sistema = sistema;

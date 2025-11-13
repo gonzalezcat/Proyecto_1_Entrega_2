@@ -23,7 +23,8 @@ public class Marketplace {
     private void registrarLog(String desc) {
         LogRegistro r = new LogRegistro(desc);
         log.add(r);
-        // luego persistiremos automáticamente el log
+        // 🔽 Persistencia del log
+        sistema.getRepo().addLog(r);
     }
 
     public Ticket buscarTicketPorId(String id) {
@@ -46,6 +47,8 @@ public class Marketplace {
 
         Oferta of = new Oferta(ticket, vendedor, precio);
         ofertas.add(of);
+        // 🔽 Persistencia de oferta
+        sistema.getRepo().addOferta(of);
         registrarLog("PUBLICÓ OFERTA " + of.getId() + " de " + vendedor.getLogin() + " ticket=" + ticket.getId());
         return of;
     }
@@ -55,6 +58,8 @@ public class Marketplace {
         if (!o.getVendedor().getLogin().equals(vendedor.getLogin()))
             throw new IllegalStateException("Solo el vendedor puede cancelarla");
         o.setActiva(false);
+        // 🔽 Actualizamos persistencia
+        sistema.getRepo().addOferta(o);
         registrarLog("CANCELÓ OFERTA " + id + " por " + vendedor.getLogin());
     }
 
@@ -76,13 +81,17 @@ public class Marketplace {
         t.propietario = comprador;
 
         o.setActiva(false);
+        // 🔽 Guardar compra y cambios
         sistema.getRepo().addTransaccion(new Compra(comprador, precio));
+        sistema.getRepo().addOferta(o);
         registrarLog("COMPRA OFERTA " + id + " comprador=" + comprador.getLogin() + " vendedor=" + o.getVendedor().getLogin());
     }
 
     public void contraOfertar(String id, Usuario comprador, double precio) {
         Oferta o = getOfertaActiva(id);
         o.agregarContraOferta(new Oferta.ContraOferta(comprador, precio));
+        // 🔽 Persistencia y log
+        sistema.getRepo().addOferta(o);
         registrarLog("CONTRAOFERTA en " + id + " por " + comprador.getLogin() + " precio=" + precio);
     }
 
@@ -102,7 +111,9 @@ public class Marketplace {
         o.getTicket().propietario = comprador;
         o.setActiva(false);
 
+        // 🔽 Persistencia total
         sistema.getRepo().addTransaccion(new Compra(comprador, precio));
+        sistema.getRepo().addOferta(o);
         registrarLog("ACEPTÓ CONTRAOFERTA " + id + " comprador=" + comprador.getLogin() + " vendedor=" + vendedor.getLogin());
     }
 
@@ -115,8 +126,8 @@ public class Marketplace {
 
     public List<Oferta> listarOfertasActivas() {
         List<Oferta> r = new ArrayList<>();
-        for (Oferta o : ofertas) if (o.isActiva()) r.add(o);
+        for (Oferta o : ofertas)
+            if (o.isActiva()) r.add(o);
         return r;
     }
 }
-
